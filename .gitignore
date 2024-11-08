@@ -1,0 +1,4 @@
+/venv
+/src/__pycache__
+/SWEG_SSMP.egg-info
+*.db
