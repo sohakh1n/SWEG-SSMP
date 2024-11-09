@@ -47,8 +47,8 @@ class Database:
         Returns True if successful, False otherwise
         """
         sql = """
-        INSERT INTO posts (image_path, comment, username, created_at)
-        VALUES (?, ?, ?, CURRENT_TIMESTAMP);
+        INSERT INTO posts (image_path, comment, username)
+        VALUES (?, ?, ?);
         """
         try:
             conn = self.connect()
@@ -68,7 +68,7 @@ class Database:
         sql = """
         SELECT id, image_path, comment, username, created_at
         FROM posts
-        ORDER BY id DESC
+        ORDER BY created_at DESC
         LIMIT 1;
         """
         try:
