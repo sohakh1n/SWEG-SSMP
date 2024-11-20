@@ -91,3 +91,89 @@ class Database:
         finally:
             if conn:
                 conn.close()
+
+                def get_post_by_id(self, post_id: int):
+                    """Retrieve a post by ID"""
+                    sql = "SELECT * FROM posts WHERE id = ?;"
+                    try:
+                        conn = self.connect()
+                        if conn:
+                            cursor = conn.execute(sql, (post_id,))
+                            row = cursor.fetchone()
+                            if row:
+                                return {
+                                    'id': row[0],
+                                    'image_path': row[1],
+                                    'comment': row[2],
+                                    'username': row[3],
+                                    'created_at': row[4],
+                                }
+                            return None
+                    finally:
+                        if conn:
+                            conn.close()
+
+                def search_posts(self, username=None, comment=None):
+                    """Search for posts by username or comment"""
+                    sql = "SELECT * FROM posts WHERE username LIKE ? OR comment LIKE ?;"
+                    try:
+                        conn = self.connect()
+                        if conn:
+                            cursor = conn.execute(sql, (f"%{username}%", f"%{comment}%"))
+                            rows = cursor.fetchall()
+                            return [
+                                {
+                                    'id': row[0],
+                                    'image_path': row[1],
+                                    'comment': row[2],
+                                    'username': row[3],
+                                    'created_at': row[4],
+                                }
+                                for row in rows
+                            ]
+                    finally:
+                        if conn:
+                            conn.close()
+
+    def get_post_by_id(self, post_id: int):
+        """Retrieve a post by ID"""
+        sql = "SELECT * FROM posts WHERE id = ?;"
+        try:
+            conn = self.connect()
+            if conn:
+                cursor = conn.execute(sql, (post_id,))
+                row = cursor.fetchone()
+                if row:
+                    return {
+                        'id': row[0],
+                        'image_path': row[1],
+                        'comment': row[2],
+                        'username': row[3],
+                        'created_at': row[4],
+                    }
+                return None  # Kein Post mit dieser ID gefunden
+        finally:
+            if conn:
+                conn.close()
+
+    def search_posts(self, username=None, comment=None):
+        """Search for posts by username or comment"""
+        sql = "SELECT * FROM posts WHERE username LIKE ? OR comment LIKE ?;"
+        try:
+            conn = self.connect()
+            if conn:
+                cursor = conn.execute(sql, (f"%{username}%", f"%{comment}%"))
+                rows = cursor.fetchall()
+                return [
+                    {
+                        'id': row[0],
+                        'image_path': row[1],
+                        'comment': row[2],
+                        'username': row[3],
+                        'created_at': row[4],
+                    }
+                    for row in rows
+                ]
+        finally:
+            if conn:
+                conn.close()
