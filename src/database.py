@@ -91,3 +91,78 @@ class Database:
         finally:
             if conn:
                 conn.close()
+
+    def get_post_by_id(self, post_id: int) -> dict:
+        """Retrieve a post by its ID"""
+        sql = """
+        SELECT id, image_path, comment, username, created_at
+        FROM posts
+        WHERE id = ?;
+        """
+        try:
+            conn = self.connect()
+            if conn:
+                cursor = conn.execute(sql, (post_id,))
+                row = cursor.fetchone()
+                if row:
+                    return {
+                        'id': row[0],
+                        'image_path': row[1],
+                        'comment': row[2],
+                        'username': row[3],
+                        'created_at': row[4]
+                    }
+                return None
+        except sqlite3.Error as e:
+            print(f"Error retrieving post: {e}")
+            return None
+        finally:
+            if conn:
+                conn.close()
+
+    def search_posts_by_username(self, username: str) -> list:
+        """Search for posts by a specific username"""
+        sql = """
+        SELECT id, image_path, comment, username, created_at
+        FROM posts
+        WHERE username = ?
+        ORDER BY created_at DESC;
+        """
+        try:
+            conn = self.connect()
+            if conn:
+                cursor = conn.execute(sql, (username,))
+                rows = cursor.fetchall()
+                return [
+                    {'id': row[0], 'image_path': row[1], 'comment': row[2], 'username': row[3], 'created_at': row[4]}
+                    for row in rows
+                ]
+        except sqlite3.Error as e:
+            print(f"Error searching posts: {e}")
+            return []
+        finally:
+            if conn:
+                conn.close()
+
+    def get_all_posts(self) -> list:
+        """Retrieve all posts"""
+        sql = """
+        SELECT id, image_path, comment, username, created_at
+        FROM posts
+        ORDER BY created_at DESC;
+        """
+        try:
+            conn = self.connect()
+            if conn:
+                cursor = conn.execute(sql)
+                rows = cursor.fetchall()
+                return [
+                    {'id': row[0], 'image_path': row[1], 'comment': row[2], 'username': row[3], 'created_at': row[4]}
+                    for row in rows
+                ]
+        except sqlite3.Error as e:
+            print(f"Error retrieving posts: {e}")
+            return []
+        finally:
+            if conn:
+                conn.close()
