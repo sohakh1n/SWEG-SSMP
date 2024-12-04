@@ -1,179 +1,49 @@
-import sqlite3
-from pathlib import Path
-import os
+from sqlalchemy import create_engine, Column, Integer, String, Text, TIMESTAMP
+from sqlalchemy.orm import declarative_base, sessionmaker
 from datetime import datetime
+import os
 
+# Absoluten Pfad zur Datenbankdatei festlegen
+BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+DATABASE_URL = f"sqlite:///{os.path.join(BASE_DIR, 'social_media.db')}"
+
+# Engine erstellen
+engine = create_engine(DATABASE_URL, echo=True)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+Base = declarative_base()
+
+# Tabellenmodell
+class Post(Base):
+    __tablename__ = "posts"
+    id = Column(Integer, primary_key=True, index=True)
+    image_path = Column(String, nullable=True)
+    comment = Column(Text, nullable=True)
+    username = Column(String, nullable=False)
+    created_at = Column(TIMESTAMP, default=datetime.utcnow)
+
+# Datenbank initialisieren
+def init_db():
+    Base.metadata.create_all(bind=engine)
+
+# Datenbankoperationen
 class Database:
-    def __init__(self, db_name="social_media.db"):
-        """Initialize database connection"""
-        self.db_name = db_name
-        self.conn = None
-        self.create_tables()
+    def __init__(self):
+        self.db = SessionLocal()
 
-    def connect(self):
-        """Create a database connection"""
-        try:
-            self.conn = sqlite3.connect(self.db_name)
-            return self.conn
-        except sqlite3.Error as e:
-            print(f"Error connecting to database: {e}")
-            return None
+    def add_post(self, image_path: str, comment: str, username: str) -> int:
+        new_post = Post(image_path=image_path, comment=comment, username=username)
+        self.db.add(new_post)
+        self.db.commit()
+        self.db.refresh(new_post)
+        return new_post.id
 
-    def create_tables(self):
-        """Create posts table if it doesn't exist"""
-        create_table_sql = """
-        CREATE TABLE IF NOT EXISTS posts (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            image_path TEXT NOT NULL,
-            comment TEXT,
-            username TEXT NOT NULL,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        );
-        """
-        try:
-            conn = self.connect()
-            if conn:
-                conn.execute(create_table_sql)
-                conn.commit()
-        except sqlite3.Error as e:
-            print(f"Error creating table: {e}")
-        finally:
-            if conn:
-                conn.close()
-
-    def add_post(self, image_path: str, comment: str, username: str) -> bool:
-        """
-        Add a new post to the database
-        Returns True if successful, False otherwise
-        """
-        sql = """
-        INSERT INTO posts (image_path, comment, username, created_at)
-        VALUES (?, ?, ?, CURRENT_TIMESTAMP);
-        """
-        try:
-            conn = self.connect()
-            if conn:
-                conn.execute(sql, (image_path, comment, username))
-                conn.commit()
-                return True
-        except sqlite3.Error as e:
-            print(f"Error adding post: {e}")
-            return False
-        finally:
-            if conn:
-                conn.close()
-
-    def get_latest_post(self) -> dict:
-        """Retrieve the most recent post"""
-        sql = """
-        SELECT id, image_path, comment, username, created_at
-        FROM posts
-        ORDER BY id DESC
-        LIMIT 1;
-        """
-        try:
-            conn = self.connect()
-            if conn:
-                cursor = conn.execute(sql)
-                row = cursor.fetchone()
-                if row:
-                    return {
-                        'id': row[0],
-                        'image_path': row[1],
-                        'comment': row[2],
-                        'username': row[3],
-                        'created_at': row[4]
-                    }
-                return None
-        except sqlite3.Error as e:
-            print(f"Error retrieving latest post: {e}")
-            return None
-        finally:
-            if conn:
-                conn.close()
-
-                def get_post_by_id(self, post_id: int):
-                    """Retrieve a post by ID"""
-                    sql = "SELECT * FROM posts WHERE id = ?;"
-                    try:
-                        conn = self.connect()
-                        if conn:
-                            cursor = conn.execute(sql, (post_id,))
-                            row = cursor.fetchone()
-                            if row:
-                                return {
-                                    'id': row[0],
-                                    'image_path': row[1],
-                                    'comment': row[2],
-                                    'username': row[3],
-                                    'created_at': row[4],
-                                }
-                            return None
-                    finally:
-                        if conn:
-                            conn.close()
-
-                def search_posts(self, username=None, comment=None):
-                    """Search for posts by username or comment"""
-                    sql = "SELECT * FROM posts WHERE username LIKE ? OR comment LIKE ?;"
-                    try:
-                        conn = self.connect()
-                        if conn:
-                            cursor = conn.execute(sql, (f"%{username}%", f"%{comment}%"))
-                            rows = cursor.fetchall()
-                            return [
-                                {
-                                    'id': row[0],
-                                    'image_path': row[1],
-                                    'comment': row[2],
-                                    'username': row[3],
-                                    'created_at': row[4],
-                                }
-                                for row in rows
-                            ]
-                    finally:
-                        if conn:
-                            conn.close()
+    def get_latest_post(self):
+        return self.db.query(Post).order_by(Post.created_at.desc()).first()
 
     def get_post_by_id(self, post_id: int):
-        """Retrieve a post by ID"""
-        sql = "SELECT * FROM posts WHERE id = ?;"
-        try:
-            conn = self.connect()
-            if conn:
-                cursor = conn.execute(sql, (post_id,))
-                row = cursor.fetchone()
-                if row:
-                    return {
-                        'id': row[0],
-                        'image_path': row[1],
-                        'comment': row[2],
-                        'username': row[3],
-                        'created_at': row[4],
-                    }
-                return None  # Kein Post mit dieser ID gefunden
-        finally:
-            if conn:
-                conn.close()
+        return self.db.query(Post).filter(Post.id == post_id).first()
 
-    def search_posts(self, username=None, comment=None):
-        """Search for posts by username or comment"""
-        sql = "SELECT * FROM posts WHERE username LIKE ? OR comment LIKE ?;"
-        try:
-            conn = self.connect()
-            if conn:
-                cursor = conn.execute(sql, (f"%{username}%", f"%{comment}%"))
-                rows = cursor.fetchall()
-                return [
-                    {
-                        'id': row[0],
-                        'image_path': row[1],
-                        'comment': row[2],
-                        'username': row[3],
-                        'created_at': row[4],
-                    }
-                    for row in rows
-                ]
-        finally:
-            if conn:
-                conn.close()
+    def search_posts(self, query: str):
+        return self.db.query(Post).filter(
+            (Post.comment.ilike(f"%{query}%")) | (Post.username.ilike(f"%{query}%"))
+        ).all()

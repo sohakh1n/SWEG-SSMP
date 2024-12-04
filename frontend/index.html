@@ -1,18 +1,197 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Social Media App</title>
-    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #007bff;
+            font-size: 2rem;
+        }
+
+        h2 {
+            margin-top: 20px;
+            color: #333;
+        }
+
+        form {
+            margin-bottom: 20px;
+        }
+
+        label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        input, textarea, button {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+
+        button {
+            background-color: #007bff;
+            color: white;
+            font-size: 1rem;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .posts {
+            margin-top: 20px;
+        }
+
+        .post {
+            background: #f9f9f9;
+            margin-bottom: 15px;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .post img {
+            max-width: 100%;
+            height: auto;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+
+        .post h3 {
+            margin: 0;
+            color: #007bff;
+        }
+
+        .post p {
+            margin: 5px 0;
+        }
+    </style>
 </head>
 <body>
-    <h1>Social Media App</h1>
-    <form id="postForm">
-        <input type="text" id="imagePath" placeholder="Image Path" required>
-        <input type="text" id="username" placeholder="Username" required>
-        <textarea id="comment" placeholder="Comment" required></textarea>
-        <button type="submit">Create Post</button>
-    </form>
-    <div id="posts"></div>
-    <script src="app.js"></script>
+    <div class="container">
+        <h1>Social Media App</h1>
+        <p style="text-align: center;">Post and share your moments!</p>
+
+        <h2>Upload an Image</h2>
+        <form id="uploadForm">
+            <label for="image">Choose an image:</label>
+            <input type="file" id="image" name="file" accept="image/*" required>
+            <button type="submit">Upload</button>
+        </form>
+        <div id="uploadResult"></div>
+
+        <h2>Create a Post</h2>
+        <form id="postForm">
+            <input type="text" id="imagePath" placeholder="Image Path" required>
+            <input type="text" id="username" placeholder="Username" required>
+            <textarea id="comment" placeholder="Comment"></textarea>
+            <button type="submit">Create Post</button>
+        </form>
+
+        <h2>Recent Posts</h2>
+        <div id="recentPosts" class="posts"></div>
+    </div>
+
+    <script>
+        const uploadForm = document.getElementById('uploadForm');
+        const postForm = document.getElementById('postForm');
+        const uploadResult = document.getElementById('uploadResult');
+        const recentPostsDiv = document.getElementById('recentPosts');
+
+        // Upload an image
+        uploadForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            const formData = new FormData();
+            const imageInput = document.getElementById('image');
+            formData.append('file', imageInput.files[0]);
+
+            try {
+                const response = await fetch('http://127.0.0.1:8000/api/v1/image', {
+                    method: 'POST',
+                    body: formData
+                });
+                const result = await response.json();
+                uploadResult.innerHTML = `<p><strong>${result.message}</strong></p><p>File Path: ${result.file_path}</p>`;
+                document.getElementById('imagePath').value = result.file_path; // Autofill Image Path
+            } catch (error) {
+                uploadResult.innerHTML = `<p>Error uploading image: ${error.message}</p>`;
+            }
+        });
+
+        // Create a post
+        postForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            const imagePath = document.getElementById('imagePath').value;
+            const username = document.getElementById('username').value;
+            const comment = document.getElementById('comment').value;
+
+            try {
+                const response = await fetch('http://127.0.0.1:8000/api/v1/post', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ image: imagePath, user: username, text: comment })
+                });
+                if (response.ok) {
+                    alert('Post created successfully!');
+                    loadRecentPosts(); // Refresh posts
+                } else {
+                    alert('Failed to create post.');
+                }
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        });
+
+        // Load recent posts
+        async function loadRecentPosts() {
+            try {
+                const response = await fetch('http://127.0.0.1:8000/api/v1/post/latest');
+                const post = await response.json();
+
+                const postHTML = `
+                    <div class="post">
+                        <img src="${post.image_path}" alt="Uploaded Image">
+                        <h3>Username: ${post.username}</h3>
+                        <p>Comment: ${post.comment}</p>
+                        <p><small>${post.created_at}</small></p>
+                    </div>
+                `;
+
+                recentPostsDiv.innerHTML = postHTML;
+            } catch (error) {
+                recentPostsDiv.innerHTML = `<p>No recent posts found.</p>`;
+            }
+        }
+
+        // Load posts on page load
+        loadRecentPosts();
+    </script>
 </body>
 </html>
