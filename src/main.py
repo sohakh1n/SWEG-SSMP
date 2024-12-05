@@ -20,6 +20,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 # Mount the uploads directory to serve static files
 app.mount("/uploads", StaticFiles(directory="src/uploads"), name="uploads")
 

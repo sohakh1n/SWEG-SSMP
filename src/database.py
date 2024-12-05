@@ -3,7 +3,7 @@ from sqlalchemy.orm import declarative_base, sessionmaker
 from datetime import datetime
 import os
 
-# Absoluten Pfad zur Datenbankdatei festlegen
+# Absoluter Pfad zur Datenbankdatei
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 DATABASE_URL = f"sqlite:///{os.path.join(BASE_DIR, 'social_media.db')}"
 

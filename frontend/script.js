@@ -1,10 +1,14 @@
 const uploadForm = document.getElementById('uploadForm');
 const postForm = document.getElementById('postForm');
-const postsContainer = document.getElementById('postsContainer');
+const searchForm = document.getElementById('searchForm');
+const uploadResult = document.getElementById('uploadResult');
+const recentPostsDiv = document.getElementById('recentPosts');
+const searchResultsDiv = document.getElementById('searchResults');
 
-// Handle image upload
-uploadForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
+// Upload an image
+uploadForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+
     const formData = new FormData();
     const imageInput = document.getElementById('image');
     formData.append('file', imageInput.files[0]);
@@ -12,18 +16,20 @@ uploadForm.addEventListener('submit', async (e) => {
     try {
         const response = await fetch('http://127.0.0.1:8000/api/v1/image', {
             method: 'POST',
-            body: formData,
+            body: formData
         });
         const result = await response.json();
-        document.getElementById('uploadResult').innerHTML = `<p>${result.message}</p><p><strong>File Path:</strong> ${result.file_path}</p>`;
+        uploadResult.innerHTML = `<p><strong>${result.message}</strong></p><p>File Path: ${result.file_path}</p>`;
+        document.getElementById('imagePath').value = result.file_path; // Autofill Image Path
     } catch (error) {
-        document.getElementById('uploadResult').innerHTML = `<p>Error: ${error.message}</p>`;
+        uploadResult.innerHTML = `<p>Error uploading image: ${error.message}</p>`;
     }
 });
 
-// Handle post creation
-postForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
+// Create a post
+postForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+
     const imagePath = document.getElementById('imagePath').value;
     const username = document.getElementById('username').value;
     const comment = document.getElementById('comment').value;
@@ -32,12 +38,11 @@ postForm.addEventListener('submit', async (e) => {
         const response = await fetch('http://127.0.0.1:8000/api/v1/post', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ image: imagePath, user: username, text: comment }),
+            body: JSON.stringify({ image: imagePath, user: username, text: comment })
         });
-
         if (response.ok) {
             alert('Post created successfully!');
-            loadPosts();
+            loadRecentPosts(); // Refresh posts
         } else {
             alert('Failed to create post.');
         }
@@ -46,24 +51,61 @@ postForm.addEventListener('submit', async (e) => {
     }
 });
 
-// Load posts from the API
-async function loadPosts() {
+// Search posts
+searchForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+
+    const query = document.getElementById('searchQuery').value;
+
+    try {
+        const response = await fetch(`http://127.0.0.1:8000/api/v1/post/search/${query}`);
+        const results = await response.json();
+
+        if (results.length === 0) {
+            searchResultsDiv.innerHTML = `<p>No posts found for query: "${query}".</p>`;
+            return;
+        }
+
+        const postsHTML = results.map(post => `
+            <div class="post">
+                <img src="http://127.0.0.1:8000/${post.image_path}" alt="Uploaded Image">
+                <h3>Username: ${post.username}</h3>
+                <p>Comment: ${post.comment}</p>
+                <p><small>${post.created_at}</small></p>
+            </div>
+        `).join('');
+
+        searchResultsDiv.innerHTML = postsHTML;
+    } catch (error) {
+        searchResultsDiv.innerHTML = `<p>Error searching posts: ${error.message}</p>`;
+    }
+});
+
+// Load recent posts
+async function loadRecentPosts() {
     try {
         const response = await fetch('http://127.0.0.1:8000/api/v1/post/latest');
         const post = await response.json();
 
-        postsContainer.innerHTML = `
+        if (!post || !post.image_path || !post.username || !post.comment) {
+            recentPostsDiv.innerHTML = `<p>No recent posts found.</p>`;
+            return;
+        }
+
+        const postHTML = `
             <div class="post">
-                <img src="${post.image_path}" alt="Post Image">
-                <p><strong>${post.username}</strong></p>
-                <p>${post.comment}</p>
+                <img src="http://127.0.0.1:8000/${post.image_path}" alt="Uploaded Image">
+                <h3>Username: ${post.username}</h3>
+                <p>Comment: ${post.comment}</p>
                 <p><small>${post.created_at}</small></p>
-            </div>`;
+            </div>
+        `;
+
+        recentPostsDiv.innerHTML = postHTML;
     } catch (error) {
-        postsContainer.innerHTML = `<p>Error loading posts: ${error.message}</p>`;
+        recentPostsDiv.innerHTML = `<p>Error loading posts: ${error.message}</p>`;
     }
 }
 
-// Initial load
-loadPosts();
-
+// Load posts on page load
+loadRecentPosts();
