@@ -4,30 +4,31 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Social Media App</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <div class="background"></div>
     <div class="container">
         <header class="header">
             <h1 class="title">Social Media App</h1>
-            <p class="subtitle">Post and share your moments!</p>
+            <p class="subtitle">Post and share your best moments!</p>
         </header>
 
         <main>
-            <section class="upload-section">
+            <section class="card">
                 <h2>Upload an Image</h2>
                 <form id="uploadForm" class="form">
                     <div class="form-group">
                         <label for="image">Choose an image:</label>
                         <input type="file" id="image" name="file" accept="image/*" required>
                     </div>
-                    <button type="submit" class="btn btn-primary">Upload</button>
+                    <button type="submit" class="btn-primary">Upload</button>
                 </form>
                 <div id="uploadResult" class="result"></div>
             </section>
 
-            <section class="create-post-section">
+            <section class="card">
                 <h2>Create a Post</h2>
                 <form id="postForm" class="form">
                     <div class="form-group">
@@ -39,22 +40,22 @@
                     <div class="form-group">
                         <textarea id="comment" placeholder="Comment"></textarea>
                     </div>
-                    <button type="submit" class="btn btn-primary">Create Post</button>
+                    <button type="submit" class="btn-primary">Create Post</button>
                 </form>
             </section>
 
-            <section class="search-section">
+            <section class="card">
                 <h2>Search Posts</h2>
                 <form id="searchForm" class="form">
                     <div class="form-group">
                         <input type="text" id="searchQuery" placeholder="Search by username or text">
                     </div>
-                    <button type="submit" class="btn btn-secondary">Search</button>
+                    <button type="submit" class="btn-secondary">Search</button>
                 </form>
                 <div id="searchResults" class="posts"></div>
             </section>
 
-            <section class="recent-posts-section">
+            <section class="card">
                 <h2>Recent Posts</h2>
                 <div id="recentPosts" class="posts"></div>
             </section>

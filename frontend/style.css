@@ -1,130 +1,138 @@
-/* General Styling */
-body {
-    font-family: 'Poppins', sans-serif;
-    background-color: #f0f4f8;
+/* General Styles */
+body, html {
     margin: 0;
     padding: 0;
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(120deg, #0f2027, #203a43, #2c5364);
+    color: white;
     display: flex;
-    flex-direction: column;
-    min-height: 100vh;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    overflow: auto;
 }
 
-.container {
+.background {
+    position: fixed;
+    top: 0;
+    left: 0;
     width: 100%;
-    max-width: 800px;
-    margin: auto;
-    padding: 20px;
-    background: white;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-    border-radius: 10px;
+    height: 100%;
+    background: radial-gradient(circle, rgba(255,255,255,0.1), rgba(255,255,255,0));
+    z-index: -1;
 }
 
+/* Container and Cards */
+.container {
+    width: 90%;
+    max-width: 800px;
+}
+
+.card {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 20px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Header */
 .header {
     text-align: center;
-    margin-bottom: 20px;
+    margin-bottom: 30px;
 }
 
 .title {
     font-size: 2.5rem;
-    color: #333;
-    margin-bottom: 5px;
-    letter-spacing: 1px;
+    font-weight: 600;
+    color: #ffffff;
+    text-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
 }
 
 .subtitle {
-    font-size: 1.2rem;
-    color: #555;
+    font-size: 1rem;
+    color: #cfd8dc;
 }
 
-h2 {
-    font-size: 1.5rem;
-    color: #007bff;
-    margin-bottom: 15px;
-    border-left: 5px solid #007bff;
-    padding-left: 10px;
-}
-
+/* Forms */
 .form {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
+    margin-top: 10px;
 }
 
 .form-group {
-    display: flex;
-    flex-direction: column;
+    margin-bottom: 15px;
+}
+
+input, textarea, button {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 10px;
+    border: none;
+    font-size: 1rem;
 }
 
 input, textarea {
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    font-size: 1rem;
-    width: 100%;
+    background: rgba(255, 255, 255, 0.3);
+    color: white;
+    outline: none;
+    border: 1px solid rgba(255, 255, 255, 0.4);
 }
 
 textarea {
-    resize: vertical;
+    resize: none;
+    height: 80px;
 }
 
 button {
-    padding: 10px 15px;
-    font-size: 1rem;
-    border: none;
-    border-radius: 5px;
     cursor: pointer;
-    transition: all 0.3s;
-}
-
-button:hover {
-    transform: scale(1.02);
 }
 
 .btn-primary {
-    background-color: #007bff;
+    background: linear-gradient(120deg, #4e54c8, #8f94fb);
     color: white;
+    font-weight: 600;
+    transition: all 0.3s ease;
 }
 
 .btn-primary:hover {
-    background-color: #0056b3;
+    background: linear-gradient(120deg, #8f94fb, #4e54c8);
+    transform: scale(1.05);
 }
 
 .btn-secondary {
-    background-color: #6c757d;
+    background: linear-gradient(120deg, #36d1dc, #5b86e5);
     color: white;
+    font-weight: 600;
+    transition: all 0.3s ease;
 }
 
 .btn-secondary:hover {
-    background-color: #5a6268;
+    background: linear-gradient(120deg, #5b86e5, #36d1dc);
+    transform: scale(1.05);
 }
 
-.result, .posts {
-    margin-top: 15px;
-    padding: 10px;
-    border-radius: 5px;
-    background-color: #f8f9fa;
-    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.post {
-    background: #fff;
+/* Posts */
+.posts .post {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 15px;
     padding: 15px;
-    margin-bottom: 15px;
-    border-radius: 5px;
-    border: 1px solid #ddd;
-    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
 
-.post img {
-    max-width: 100%;
-    border-radius: 5px;
+.posts .post img {
+    width: 100%;
+    border-radius: 10px;
     margin-bottom: 10px;
 }
 
-footer {
+/* Footer */
+.footer {
     text-align: center;
-    padding: 15px;
-    background-color: #f8f9fa;
-    margin-top: auto;
-    color: #777;
+    color: #cfd8dc;
+    font-size: 0.9rem;
+    margin-top: 30px;
 }
