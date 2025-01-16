@@ -5,10 +5,9 @@ const uploadResult = document.getElementById('uploadResult');
 const recentPostsDiv = document.getElementById('recentPosts');
 const searchResultsDiv = document.getElementById('searchResults');
 
-// Upload an image
+
 uploadForm.addEventListener('submit', async (event) => {
     event.preventDefault();
-
     const formData = new FormData();
     const imageInput = document.getElementById('image');
     formData.append('file', imageInput.files[0]);
@@ -18,40 +17,40 @@ uploadForm.addEventListener('submit', async (event) => {
             method: 'POST',
             body: formData
         });
+
         const result = await response.json();
-        uploadResult.innerHTML = `<p><strong>${result.message}</strong></p><p>File Path: ${result.file_path}</p>`;
-        document.getElementById('imagePath').value = result.file_path; // Autofill Image Path
+        console.log("API Response:", result); // Debug-Log der API Response
+
+        if (result.full_size_path) {
+            uploadResult.innerHTML = `<p><strong>${result.message}</strong></p>
+                                      <p>Full-Size Path:
+                                      <a href="${result.full_size_path}" target="_blank">View Full Image</a></p>`;
+            document.getElementById('imagePath').value = result.full_size_path;
+        } else {
+            throw new Error("full_size_path is missing in the response.");
+        }
     } catch (error) {
+        console.error("Upload Error:", error);
         uploadResult.innerHTML = `<p>Error uploading image: ${error.message}</p>`;
     }
 });
 
-// Create a post
+
+// Post erstellen
 postForm.addEventListener('submit', async (event) => {
     event.preventDefault();
-
     const imagePath = document.getElementById('imagePath').value;
     const username = document.getElementById('username').value;
     const comment = document.getElementById('comment').value;
 
-    try {
-        const response = await fetch('http://127.0.0.1:8000/api/v1/post', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ image: imagePath, user: username, text: comment })
-        });
-        if (response.ok) {
-            alert('Post created successfully!');
-            loadRecentPosts(); // Refresh posts
-        } else {
-            alert('Failed to create post.');
-        }
-    } catch (error) {
-        alert('Error: ' + error.message);
-    }
+    await fetch('http://127.0.0.1:8000/api/v1/post', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ image: imagePath, user: username, text: comment })
+    });
+    loadRecentPosts();
 });
 
-// Search posts
 searchForm.addEventListener('submit', async (event) => {
     event.preventDefault();
 
@@ -68,7 +67,7 @@ searchForm.addEventListener('submit', async (event) => {
 
         const postsHTML = results.map(post => `
             <div class="post">
-                <img src="http://127.0.0.1:8000/${post.image_path}" alt="Uploaded Image">
+                <img src="${post.image_path}" alt="Uploaded Image"> <!-- Korrektur hier -->
                 <h3>Username: ${post.username}</h3>
                 <p>Comment: ${post.comment}</p>
                 <p><small>${post.created_at}</small></p>
@@ -94,7 +93,7 @@ async function loadRecentPosts() {
 
         const postHTML = `
             <div class="post">
-                <img src="http://127.0.0.1:8000/${post.image_path}" alt="Uploaded Image">
+<img src="${post.image_path}" alt="Uploaded Image">
                 <h3>Username: ${post.username}</h3>
                 <p>Comment: ${post.comment}</p>
                 <p><small>${post.created_at}</small></p>
@@ -106,6 +105,7 @@ async function loadRecentPosts() {
         recentPostsDiv.innerHTML = `<p>Error loading posts: ${error.message}</p>`;
     }
 }
+
 
 // Load posts on page load
 loadRecentPosts();

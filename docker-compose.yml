@@ -8,7 +8,7 @@ services:
       POSTGRES_PASSWORD: password
       POSTGRES_DB: social_media
     ports:
-       - "5433:5432"
+      - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
@@ -17,10 +17,28 @@ services:
     container_name: social_media_api
     environment:
       DATABASE_URL: postgres://user:password@db:5432/social_media
+      REDIS_HOST: redis  # Redis Host für deine API
+      REDIS_PORT: 6379   # Standard Redis-Port
     ports:
       - "8000:8000"
     depends_on:
       - db
+      - redis
 
+  redis:
+    image: redis:6
+    container_name: redis
+    ports:
+      - "6379:6379"  # Port für Redis
+
+  worker:
+    build: .
+    container_name: image_worker
+    command: [ "python", "src/worker/image_worker.py" ]
+    environment:
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+    depends_on:
+      - redis
 volumes:
   postgres_data:

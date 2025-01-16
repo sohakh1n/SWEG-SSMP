@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Social Media App</title>
+    <title>Share Sphere</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
@@ -11,7 +11,7 @@
     <div class="background"></div>
     <div class="container">
         <header class="header">
-            <h1 class="title">Social Media App</h1>
+            <h1 class="title">ShareSphere</h1>
             <p class="subtitle">Post and share your best moments!</p>
         </header>
 
@@ -54,6 +54,29 @@
                 </form>
                 <div id="searchResults" class="posts"></div>
             </section>
+<section class="card">
+    <h2>Generate Text with GPT</h2>
+    <form id="gptForm" class="form">
+        <div class="form-group">
+            <textarea id="gptPrompt" placeholder="Enter a prompt"></textarea>
+        </div>
+        <div class="form-group">
+            <input type="number" id="gptMaxLength" placeholder="Max length (default: 50)" value="50">
+        </div>
+        <button type="submit" class="btn-primary">Generate</button>
+    </form>
+    <div id="gptResult" class="result"></div>
+</section>
+<section class="card">
+    <h2>Analyze Sentiment</h2>
+    <form id="sentimentForm" class="form">
+        <div class="form-group">
+            <textarea id="sentimentText" placeholder="Enter text to analyze sentiment"></textarea>
+        </div>
+        <button type="submit" class="btn-secondary">Analyze Sentiment</button>
+    </form>
+    <div id="sentimentResult" class="result"></div>
+</section>
 
             <section class="card">
                 <h2>Recent Posts</h2>

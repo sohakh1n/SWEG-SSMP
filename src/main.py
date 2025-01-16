@@ -6,22 +6,19 @@ from fastapi.staticfiles import StaticFiles
 
 app = FastAPI()
 
-# Datenbank initialisieren
 init_db()
-
-# API-Router registrieren
 app.include_router(router)
 
 # CORS-Konfiguration
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Alternativ: ["http://127.0.0.1:5500"]
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Mount the uploads directory to serve static files
+# Static Files für Bilder
 app.mount("/uploads", StaticFiles(directory="src/uploads"), name="uploads")
 
 if __name__ == "__main__":
